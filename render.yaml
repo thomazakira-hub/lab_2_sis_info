@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: meu-blog-django
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn config.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.9.13"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: blog-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: "meu-blog-django.onrender.com"
+    plan: free

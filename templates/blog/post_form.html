@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo_pagina }} - Meu Blog{% endblock %}
+
+{% block content %}
+    <h2>{{ titulo_pagina }}</h2>
+    
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    {{ error }}
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% for field in form %}
+            <div class="mb-3">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}
+                    <div class="form-text">{{ field.help_text|safe }}</div>
+                {% endif %}
+                {% if field.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in field.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+        <div class="d-flex justify-content-between">
+            <a href="{% if post %}{% url 'blog:post_detail' pk=post.pk %}{% else %}{% url 'blog:post_list' %}{% endif %}" 
+               class="btn btn-outline-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                {% if post %}Atualizar{% else %}Criar{% endif %} Post
+            </button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Adiciona a classe is-invalid aos campos com erro
+    document.addEventListener('DOMContentLoaded', function() {
+        // Adiciona a classe is-invalid aos campos com erro
+        const form = document.querySelector('form');
+        if (form) {
+            const inputs = form.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                if (input.classList.contains('is-invalid')) {
+                    input.classList.add('is-invalid');
+                }
+            });
+            
+            // Adiciona as dicas de formatação HTML
+            const conteudoField = document.getElementById('id_conteudo');
+            if (conteudoField) {
+                const dicasHTML = `
+                    <div class="alert alert-info mt-3">
+                        <h6>Dicas de formatação HTML:</h6>
+                        <ul class="mb-0">
+                            <li><strong>Negrito:</strong> &lt;strong&gt;texto em negrito&lt;/strong&gt;</li>
+                            <li><em>Itálico:</em> &lt;em&gt;texto em itálico&lt;/em&gt;</li>
+                            <li><u>Sublinhado:</u> &lt;u&gt;texto sublinhado&lt;/u&gt;</li>
+                            <li>Lista não ordenada: &lt;ul&gt;&lt;li&gt;Item 1&lt;/li&gt;&lt;li&gt;Item 2&lt;/li&gt;&lt;/ul&gt;</li>
+                            <li><a href="#">Link</a>: &lt;a href="URL"&gt;texto do link&lt;/a&gt;</li>
+                            <li>Imagem: &lt;img src="URL_DA_IMAGEM" alt="Descrição"&gt;</li>
+                        </ul>
+                    </div>
+                `;
+                
+                // Adiciona as dicas após o campo de conteúdo
+                conteudoField.insertAdjacentHTML('afterend', dicasHTML);
+            }
+        }
+    });
+</script>
+{% endblock %}

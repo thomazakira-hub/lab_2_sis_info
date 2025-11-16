@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Início - Meu Blog{% endblock %}
+
+{% block content %}
+    <h2>Últimos Posts</h2>
+    
+    {% if posts %}
+        {% for post in posts %}
+            <article class="mb-4">
+                <h3><a href="{% url 'blog:post_detail' pk=post.pk %}" class="text-decoration-none">{{ post.titulo }}</a></h3>
+                <div class="post-meta">
+                    <div>Publicado em {{ post.data_publicacao|date:"d/m/Y H:i" }} por {{ post.autor.username }}</div>
+                    {% if post.categorias.exists %}
+                    <div class="mt-1">
+                        {% for categoria in post.categorias.all %}
+                            <span class="badge bg-secondary">{{ categoria.name }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="post-content">
+                    {{ post.conteudo|truncatewords_html:50|safe }}
+                </div>
+                <a href="{% url 'blog:post_detail' pk=post.pk %}" class="btn btn-outline-primary btn-sm mt-2">Ler mais</a>
+                
+                {% if user == post.autor %}
+                    <div class="mt-2">
+                        <a href="{% url 'blog:post_edit' pk=post.pk %}" class="btn btn-outline-secondary btn-sm">Editar</a>
+                        <a href="{% url 'blog:post_delete' pk=post.pk %}" class="btn btn-outline-danger btn-sm">Excluir</a>
+                    </div>
+                {% endif %}
+                
+                {% if not forloop.last %}<hr>{% endif %}
+            </article>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            Nenhum post publicado ainda. 
+            {% if user.is_authenticated %}
+                <a href="{% url 'blog:post_create' %}" class="alert-link">Crie o primeiro post</a>.
+            {% else %}
+                Faça <a href="{% url 'admin:login' %}" class="alert-link">login</a> para criar um post.
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

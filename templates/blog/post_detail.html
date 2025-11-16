@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.titulo }} - Meu Blog{% endblock %}
+
+{% block content %}
+    <article>
+        <h2>{{ post.titulo }}</h2>
+        <div class="post-meta">
+            <div>Publicado em {{ post.data_publicacao|date:"d/m/Y H:i" }} por {{ post.autor.username }}</div>
+            {% if post.categorias.exists %}
+            <div class="mt-2">
+                <span class="text-muted">Categorias:</span>
+                {% for categoria in post.categorias.all %}
+                    <span class="badge bg-secondary">{{ categoria.name }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="post-content mt-4">
+            {{ post.conteudo|safe }}
+        </div>
+        
+        {% if user == post.autor %}
+            <div class="mt-4">
+                <a href="{% url 'blog:post_edit' pk=post.pk %}" class="btn btn-outline-secondary">Editar Post</a>
+                <a href="{% url 'blog:post_delete' pk=post.pk %}" class="btn btn-outline-danger">Excluir Post</a>
+            </div>
+        {% endif %}
+        
+        <!-- Seção de Comentários -->
+        <div class="mt-5">
+            <h4>Comentários ({{ comments.count }})</h4>
+            
+            {% if user.is_authenticated %}
+                <div class="card my-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Deixe um comentário</h5>
+                        <form method="post" action="{% url 'blog:post_detail' pk=post.pk %}">
+                            {% csrf_token %}
+                            {{ comment_form.texto }}
+                            <button type="submit" name="comment_submit" class="btn btn-primary mt-2">Enviar Comentário</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <a href="{% url 'login' %}?next={{ request.path }}">Faça login</a> para deixar um comentário.
+                </div>
+            {% endif %}
+            
+            <!-- Lista de Comentários -->
+            {% for comment in comments %}
+                <div class="card mb-3" id="comment-{{ comment.id }}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                {{ comment.autor.username }} 
+                                <small class="text-muted">em {{ comment.data_criacao|date:"d/m/Y H:i" }}</small>
+                            </h6>
+                        </div>
+                        <p class="card-text">{{ comment.texto|linebreaks }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+            {% endfor %}
+        </div>
+        
+        <div class="mt-4">
+            <a href="{% url 'blog:post_list' %}" class="btn btn-outline-primary">&larr; Voltar para a lista de posts</a>
+        </div>
+    </article>
+{% endblock %}
