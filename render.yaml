@@ -15,4 +15,10 @@ services:
         generateValue: true
       - key: ALLOWED_HOSTS
         value: "meu-blog-django.onrender.com"
+      - key: DEBUG
+        value: "False"
+    plan: free
+
+databases:
+  - name: blog-db
     plan: free
